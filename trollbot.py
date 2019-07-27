@@ -24,7 +24,7 @@ class Trollbot(interface.Bot):
             #Estamos en un faro y es nuestro, crear connexion!
             if lighthouses[actualPosition]["owner"] == self.player_num:
                 connections = self.permittedLighthousesConnections(state)
-                if connections:
+                if len(connections) > 0:
                     return self.connect(connections[0])
             elif state["energy"] > MINIMUM_LIGHTHOUSE_ENERGY:
                 return self.attack(state["energy"])
@@ -101,18 +101,21 @@ class Trollbot(interface.Bot):
         destination = random.choice(self.getPermittedMovements(state))
  
         for lighthouse in lighthouses:
-            if lighthouses[lighthouse]["owner"] != self.player_num:
+            if lighthouses[lighthouse]["owner"] == self.player_num:
+                continue
+            elif lighthouses[lighthouse]["owner"] != self.player_num:
                 #Si hay algun faro de otro jugador se lo robamos!
                 destination = lighthouse
+                break
             elif not lighthouses[lighthouse]["have_key"]:
-                #Si hay algun faro que aun no tenemos la llave
                 destination = lighthouse  
+                break
  
         moves = self.getPermittedMovements(state)
  
         actualPosition = state["position"]
  
-        lighthouse_map = self.getMapDistanceFromPoint(state, lighthouse)
+        lighthouse_map = self.getMapDistanceFromPoint(state, destination)
  
         distances = {
             move : lighthouse_map[move[1] + actualPosition[1]][move[0] + actualPosition[0]] - random.uniform(0.1, 0.5)
